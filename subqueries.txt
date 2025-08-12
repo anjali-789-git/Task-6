@@ -1,0 +1,84 @@
+
+
+1. Subquery in SELECT (Scalar Subquery)
+
+
+SELECT 
+    Name,
+    (SELECT SUM(TotalAmount) 
+     FROM Orders 
+     WHERE Orders.CustomerID = Customers.CustomerID) AS TotalSpent
+FROM Customers;
+
+
+
+2. Subquery in WHERE with IN
+
+
+SELECT Name 
+FROM Customers
+WHERE CustomerID IN (
+    SELECT DISTINCT o.CustomerID
+    FROM Orders o
+    JOIN OrderDetails od ON o.OrderID = od.OrderID
+    WHERE od.ProductID IN (
+        SELECT ProductID
+        FROM ProductCategory
+        WHERE CategoryID = (
+            SELECT CategoryID 
+            FROM Categories 
+            WHERE CategoryName = 'Fashion'
+        )
+    )
+);
+
+
+
+
+
+3. Subquery in FROM (Derived Table)
+
+
+SELECT ProductName, TotalSold
+FROM (
+    SELECT 
+        p.ProductID, 
+        p.ProductName, 
+        SUM(od.Quantity) AS TotalSold
+    FROM Products p
+    JOIN OrderDetails od ON p.ProductID = od.ProductID
+    GROUP BY p.ProductID, p.ProductName
+) AS ProductSales
+WHERE TotalSold > 0;
+
+
+
+
+
+4. Correlated Subquery with EXISTS
+
+
+SELECT Name
+FROM Customers c
+WHERE EXISTS (
+    SELECT 1
+    FROM Orders o
+    WHERE o.CustomerID = c.CustomerID
+    AND o.TotalAmount > 10000
+);
+
+
+
+5. Subquery with =
+
+
+SELECT ProductName, Price
+FROM Products
+WHERE Price = (
+    SELECT MAX(Price) FROM Products
+);
+
+
+
+
+
